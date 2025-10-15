@@ -27,6 +27,9 @@ lazy val root = (project in file("."))
         scalaVersion := "2.12.20",
         libraryDependencies ++= deps,
         scalacOptions ++= Seq("-Ypartial-unification"),
+        addSbtPlugin("org.typelevel" % "sbt-tpolecat" % "0.5.2"),
+        addSbtPlugin("io.spray" % "sbt-revolver" % "0.10.0"),
+        addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "2.3.1"),
         addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.13.3" cross CrossVersion.full),
         addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1"),
         assembly / assemblyMergeStrategy := {
