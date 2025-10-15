@@ -1,16 +1,32 @@
-name: "Terraform Plan"
-
+name: CI
 on:
-  pull_request:
+  push:
+    branches:
+      - main
 
 env:
   TF_CLOUD_ORGANIZATION: "neal-terraform-playground"
   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
   TF_WORKSPACE: "rearc-data-quest"
   CONFIG_DIRECTORY: "./cicd/terraform/"
-
+    
 jobs:
-  terraform:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 11
+          cache: sbt
+      - name: Setup sbt launcher
+        uses: sbt/setup-sbt@v1
+      - name: Build and Test
+        run: sbt +test
+  terraform-plan:
     name: "Terraform Plan"
     runs-on: ubuntu-latest
     permissions:
@@ -78,3 +94,34 @@ jobs:
               repo: context.repo.repo,
               body: output
             });
+  terraform-apply:
+    name: "Terraform Apply"
+    runs-on: ubuntu-latest
+    permissions: # granular permissions
+      # so GitHub can check out this repo using the default github.token
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Upload Configuration
+        uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
+        id: apply-upload
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}
+          directory: ${{ env.CONFIG_DIRECTORY }}
+
+      - name: Create Apply Run
+        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
+        id: apply-run
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}
+          configuration_version: ${{ steps.apply-upload.outputs.configuration_version_id }}
+
+      - name: Apply
+        uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0
+        if: fromJSON(steps.apply-run.outputs.payload).data.attributes.actions.IsConfirmable
+        id: apply
+        with:
+          run: ${{ steps.apply-run.outputs.run_id }}
+          comment: "Apply Run from GitHub Actions CI ${{ github.sha }}"
