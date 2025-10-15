@@ -15,5 +15,7 @@ jobs:
           java-version: '17' 
       - name: Setup Scala
         uses: olafurpg/setup-scala@v14
+      - name: Compile Project
+        run: sbt compile
       - name: Run tests
         run: sbt test
