@@ -28,9 +28,9 @@ lazy val root = (project in file("."))
         libraryDependencies ++= deps,
         addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.13.3" cross CrossVersion.full),
         addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1"),
-        assembly / assemblyMergeStrategy := {
-            case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-            case x => MergeStrategy.first
-        },
-        assembly / mainClass := Some("come.neal.rearc_quest.Main")
+        // assembly / assemblyMergeStrategy := {
+        //     case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+        //     case x => MergeStrategy.first
+        // },
+        // assembly / mainClass := Some("come.neal.rearc_quest.Main")
     )
