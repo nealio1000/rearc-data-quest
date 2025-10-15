@@ -26,7 +26,6 @@ lazy val root = (project in file("."))
         version := "0.0.1-SNAPSHOT",
         scalaVersion := "2.12.20",
         libraryDependencies ++= deps,
-        enablePlugins(AssemblyPlugin, TpolecatPlugin, RevolverPlugin),
         addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.13.3" cross CrossVersion.full),
         addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1"),
         assembly / assemblyMergeStrategy := {
