@@ -23,7 +23,7 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
 # Package the Lambda function code into a zip file
 data "archive_file" "fetcher_lambda_zip" {
   type        = "zip"
-  source_file = "lambdas/rearc_fetcher.py"
+  source_file = "../../lambdas/rearc_fetcher.py"
   output_path = "fetcher_lambda.zip"
 }
 
