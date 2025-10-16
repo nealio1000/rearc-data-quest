@@ -11,8 +11,6 @@ resource "aws_lambda_function" "fetcher_lambda" {
   handler          = "rearc_fetcher.handler"
   runtime          = var.runtime
   role             = aws_iam_role.lambda_exec_role.arn
-  filename         = data.archive_file.fetcher_lambda_zip.output_path
-  source_code_hash = data.archive_file.fetcher_lambda_zip.output_base64sha256
   memory_size      = 128
   timeout          = 300
   depends_on       = [null_resource.install_python_dependencies]
