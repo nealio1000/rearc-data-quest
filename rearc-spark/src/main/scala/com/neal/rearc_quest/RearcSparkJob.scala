@@ -4,12 +4,12 @@ import org.apache.spark.sql.types._
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.Partitioner
 
-object SimpleApp extends LazyLogging {
+object RearcSparkJob extends LazyLogging {
 
     def main(args: Array[String]): Unit = {
         val spark = SparkSession.builder
         .master("local")
-        .appName("Simple Application")
+        .appName("Rearc Spark Job")
         .getOrCreate()
 
     import spark.implicits._
@@ -18,6 +18,18 @@ object SimpleApp extends LazyLogging {
 
     try {
         // read in bls file time series data
+
+        // do any necessary sanitation on bls file
+
+        // read in population data
+
+        // broadcast data
+
+        // aggregate time series data
+
+        // join with broadcasted population data
+
+        // write out result to s3
 
 
         } catch {
