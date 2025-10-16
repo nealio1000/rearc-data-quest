@@ -31,7 +31,7 @@ data "archive_file" "fetcher_lambda_zip" {
 resource "aws_lambda_function" "fetcher_lambda" {
   function_name    = "rearc_fetcher_lambda"
   handler          = "lambda_function.handler"
-  runtime          = "python3.12"
+  runtime          = "python3.9"
   role             = aws_iam_role.lambda_exec_role.arn
   filename         = data.archive_file.fetcher_lambda_zip.output_path
   source_code_hash = data.archive_file.fetcher_lambda_zip.output_base64sha256
