@@ -21,17 +21,17 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
 }
 
 # Package the Lambda function code into a zip file
-data "archive_file" "lambda_zip" {
+data "archive_file" "fetcher_lambda_zip" {
   type        = "zip"
-  source_file = "lambda_function.py"
-  output_path = "lambda_function.zip"
+  source_file = "lambdas/rearc_fetcher.py"
+  output_path = "fetcher_lambda.zip"
 }
 
 # Create the AWS Lambda function
-resource "aws_lambda_function" "my_lambda_function" {
-  function_name    = "my-terraform-lambda"
+resource "aws_lambda_function" "fetcher_lambda" {
+  function_name    = "rearc_fetcher_lambda"
   handler          = "lambda_function.handler"
-  runtime          = "python3.9" # Or your desired runtime
+  runtime          = "python3.12"
   role             = aws_iam_role.lambda_exec_role.arn
   filename         = data.archive_file.lambda_zip.output_path
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
