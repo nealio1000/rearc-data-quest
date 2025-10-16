@@ -3,6 +3,7 @@ import boto3
 import os
 from types_boto3_s3.client import S3Client
 import json
+from datetime import date
 
 def lambda_handler(event, context):
     """
@@ -13,9 +14,10 @@ def lambda_handler(event, context):
                       Expected to contain 'file_url' and 's3_bucket_name'.
         context (object): The runtime information of the Lambda invocation.
     """
-    file_url = event.get('file_url')
-    s3_bucket_name = event.get('s3_bucket_name')
-    s3_key = event.get('s3_key') # Desired key (path/filename) in S3
+    file_url = 'https://download.bls.gov/pub/time.series/pr/pr.data.0.Current'
+    s3_bucket_name = 'rearc-quest-data-bucket'
+    current_date = date.today().strftime("%Y-%m-%d")
+    s3_key = f'bls-time-series/dt={current_date}/pr.data.0.Current'
 
     if not file_url or not s3_bucket_name or not s3_key:
         return {
@@ -32,11 +34,11 @@ def lambda_handler(event, context):
         s3: S3Client = boto3.client('s3')
 
         some_json = {
-
+            "test": "data"
         }
 
         # 3. Upload the file to S3
-        s3.put_object(Bucket='', Key='', Body=json.dumps(some_json))
+        s3.put_object(Bucket=s3_bucket_name, Key=s3_key, Body=json.dumps(some_json))
 
         return {
             'statusCode': 200,
