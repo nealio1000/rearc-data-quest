@@ -39,5 +39,5 @@ resource "aws_lambda_function" "fetcher_lambda" {
 
 # Output the Lambda function's ARN
 output "lambda_function_arn" {
-  value = aws_lambda_function.my_lambda_function.arn
+  value = aws_lambda_function.fetcher_lambda.arn
 }
