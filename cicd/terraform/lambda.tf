@@ -9,7 +9,7 @@ resource "null_resource" "install_python_dependencies" {
 
 data "archive_file" "layer_zip" {
   type        = "zip"
-  source_file  = "layer.zip"
+  source_dir  = "layer"
   output_path = "layer.zip"
   depends_on  = [null_resource.install_python_dependencies]
 }
@@ -26,7 +26,7 @@ resource "aws_lambda_layer_version" "lambda_layer" {
 
 data "archive_file" "lambdas_zip" {
   type        = "zip"
-  source_file  = "lambdas.zip"
+  source_dir  = "../../lambdas/src"
   output_path = "lambdas.zip"
 }
 
