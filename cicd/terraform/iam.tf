@@ -59,10 +59,8 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
     sid = "S3Write"
     effect = "Allow"
     resources = [
-      "${aws_s3_bucket.rearc_data_bucket.arn}/population",
-      "${aws_s3_bucket.rearc_data_bucket.arn}/population/*",
-      "${aws_s3_bucket.rearc_data_bucket.arn}/bls-data",
-      "${aws_s3_bucket.rearc_data_bucket.arn}/bls-data/*",
+      "${aws_s3_bucket.rearc_data_bucket.arn}/*",
+      "${aws_s3_bucket.rearc_data_bucket.arn}" 
     ]
     actions = [
       "s3:PutObject",
@@ -86,10 +84,8 @@ data "aws_iam_policy_document" "emr_serverless_policy_doc" {
     sid = "S3ReadWrite"
     effect = "Allow"
     resources = [
-      "${aws_s3_bucket.rearc_data_bucket.arn}/population",
-      "${aws_s3_bucket.rearc_data_bucket.arn}/population/*",
-      "${aws_s3_bucket.rearc_data_bucket.arn}/bls-data",
-      "${aws_s3_bucket.rearc_data_bucket.arn}/bls-data/*",
+      "${aws_s3_bucket.rearc_data_bucket.arn}/*",
+      "${aws_s3_bucket.rearc_data_bucket.arn}" 
     ]
     actions = [
       "s3:GetObject",
