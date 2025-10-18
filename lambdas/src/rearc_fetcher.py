@@ -1,7 +1,7 @@
 import requests
 import logging
-from src.s3_utils import synchronize_with_s3
-from src.file_downloader import download_bls_data, download_population_data
+from s3_utils import synchronize_with_s3
+from file_downloader import download_bls_data, download_population_data
 
 # Set up logging for detailed output
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -22,20 +22,20 @@ def lambda_handler(event, context):
     # These could be configurable using the event json in a production setting to make the lambda more dynamic
     bls_dir_url = 'https://download.bls.gov/pub/time.series/pr/'
     s3_bucket_name = 'rearc-quest-data-bucket'
-    population_url = 'https://honolulu-api.datausa.io/tesseract/data.jsonrecords'
-    population_params = {
-        'cube':	'acs_yg_total_population_1',
-        'drilldowns':	['Year','Nation'],
-        'locale':	'en',
-        'measures':	'Population'
-    }
+    population_url = 'https://honolulu-api.datausa.io/tesseract/data.jsonrecords?cube=acs_yg_total_population_1&drilldowns=Year%2CNation&locale=en&measures=Population'
+    # population_params = {
+    #     'cube':	'acs_yg_total_population_1',
+    #     'drilldowns':	['Year','Nation'],
+    #     'locale':	'en',
+    #     'measures':	'Population'
+    # }
 
     try:
         # 1. Retrieve the BLS files
         bls_downloaded_count = download_bls_data(directory_url=bls_dir_url, local_folder='/tmp/bls-data')
 
         # 2. Retrieve the population data json file
-        population_data_count = download_population_data(url=population_url, local_folder = '/tmp/population', params=population_params)
+        population_data_count = download_population_data(url=population_url, local_folder = '/tmp/population', params={})
 
         # 3. Synchronize BLS Data with S3
         if bls_downloaded_count > 0:
