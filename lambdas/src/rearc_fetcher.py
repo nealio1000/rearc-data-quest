@@ -1,9 +1,10 @@
 import requests
-import boto3
-import os
-import json
-from datetime import date
+import logging
+from s3_utils import synchronize_with_s3
+from file_downloader import download_bls_data, download_population_data
 
+# Set up logging for detailed output
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def sanitize_data() -> str:
     return 'sanitized'
@@ -14,54 +15,44 @@ def lambda_handler(event, context):
 
     Args:
         event (dict): The event object containing information for the Lambda invocation.
-                    Expected to contain 'file_url' and 's3_bucket_name'.
+                    Currently unused but could be adapted to make the lambda more dynamic
         context (object): The runtime information of the Lambda invocation.
     """
-    file_url = 'https://download.bls.gov/pub/time.series/pr/pr.data.0.Current'
-    s3_bucket_name = 'rearc-quest-data-bucket'
-    current_date = date.today().strftime("%Y-%m-%d")
-    bls_s3_key = f'bls-time-series/dt={current_date}/pr.data.0.Current'
 
-    if not file_url or not s3_bucket_name or not bls_s3_key:
-        return {
-            'statusCode': 400,
-            'body': 'Missing required parameters: file_url, s3_bucket_name, or s3_key'
-        }
+    # These could be configurable using the event json in a production setting to make the lambda more dynamic
+    bls_dir_url = 'https://download.bls.gov/pub/time.series/pr/'
+    s3_bucket_name = 'rearc-quest-data-bucket'
+    population_url = 'https://honolulu-api.datausa.io/tesseract/data.jsonrecords'
+    population_params = {
+        'cube':	'acs_yg_total_population_1',
+        'drilldowns':	['Year','Nation'],
+        'locale':	'en',
+        'measures':	'Population'
+    }
 
     try:
-        # 1. Retrieve the file from the domain
-        contact_info = "nealiof1000@gmail.com"
-        user_agent_header = f"RearcDataQuest/1.0 ({contact_info})"
+        # 1. Retrieve the BLS files
+        bls_downloaded_count = download_bls_data(directory_url=bls_dir_url, local_folder='/tmp/bls-data')
 
-        # Set up your headers
-        headers = {
-            'Content-type': 'application/json',
-            'User-Agent': user_agent_header
-        }
-        response = requests.get(file_url, stream=True, headers=headers)
-        response.raise_for_status()  # Raise an exception for bad status codes
+        # 2. Retrieve the population data json file
+        population_data_count = download_population_data(url=population_url, local_folder = '/tmp/population', params=population_params)
 
-        # 2. Initialize S3 client
-        s3 = boto3.client('s3')
+        # 3. Synchronize BLS Data with S3
+        if bls_downloaded_count > 0:
+            synchronize_with_s3('/tmp/bls-data', s3_bucket_name)
+            
+        else:
+            logging.warning('0 Bls Files were downloaded, cannot perform synchroniziation with s3 bucket')
 
-        # 3. Upload the file to S3
-        s3.put_object(Bucket=s3_bucket_name, Key=bls_s3_key, Body=response.content)
-
-        population_url = 'https://honolulu-api.datausa.io/tesseract/data.jsonrecords'
-        population_params = {
-            'cube':	'acs_yg_total_population_1',
-            'drilldowns':	['Year','Nation'],
-            'locale':	'en',
-            'measures':	'Population'
-        }
-        population_s3_key = 'population/population.json'
-
-        response = requests.get(population_url, stream=True, headers=headers, params=population_params)
-        s3.put_object(Bucket=s3_bucket_name, Key=population_s3_key, Body=response.content)
+        # 4. Synchronize Population Data with S3
+        if population_data_count > 0:
+            synchronize_with_s3('/tmp/population', s3_bucket_name)
+        else:
+            logging.warning('0 population data files download, cannot perform synchronization with s3 bucket')
 
         return {
             'statusCode': 200,
-            'body': f'File from {file_url} successfully uploaded to s3://{s3_bucket_name}/{bls_s3_key}'
+            'body': f'Fetcher Lambda completed successfully, updated x files, removed x files, added x files to bucket path'
         }
 
     except requests.exceptions.RequestException as e:
@@ -76,3 +67,7 @@ def lambda_handler(event, context):
             'statusCode': 500,
             'body': f'Error uploading to S3: {str(e)}'
         }
+
+
+if __name__ == '__main__':
+    lambda_handler(event={},context={})
