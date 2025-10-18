@@ -1,3 +1,5 @@
+package com.neal.rearc_quest
+
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
@@ -8,29 +10,35 @@ object RearcSparkJob extends LazyLogging {
 
     def main(args: Array[String]): Unit = {
         val spark = SparkSession.builder
-        .master("local")
-        .appName("Rearc Spark Job")
-        .getOrCreate()
+            .master("local[*]")
+            .appName("Rearc Spark Job")
+            .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+            .getOrCreate()
 
-    import spark.implicits._
+        import spark.implicits._
 
-    spark.conf.set("spark.sql.caseSensitive", true)
+        spark.conf.set("spark.sql.caseSensitive", true)
 
-    try {
-        // read in bls file time series data
+        try {
+            // read in bls file time series data
+            val df = spark.read
+                .option("header", "true")
+                .csv("s3a://rearc-quest-data-bucket/bls-data/pr.data.0.Current")
 
-        // do any necessary sanitation on bls file
+            df.show()
 
-        // read in population data
 
-        // broadcast data
+            // do any necessary sanitation on bls file
 
-        // aggregate time series data
+            // read in population data
 
-        // join with broadcasted population data
+            // broadcast data
 
-        // write out result to s3
+            // aggregate time series data
 
+            // join with broadcasted population data
+
+            // write out result to s3
 
         } catch {
             case ex: Throwable => throw ex
