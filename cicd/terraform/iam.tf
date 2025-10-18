@@ -95,6 +95,11 @@ data "aws_iam_policy_document" "emr_serverless_policy_doc" {
   }
 }
 
+resource "aws_iam_policy" "emr_serverless_iam_policy" {
+  name = "emr_serverless_iam_policy"
+  policy = data.aws_iam_policy_document.emr_serverless_policy_doc.json
+}
+
 resource "aws_iam_role" "emr_serverless_job_role" {
   name = "emr-serverless-job-role"
   assume_role_policy = jsonencode({
@@ -111,7 +116,7 @@ resource "aws_iam_role" "emr_serverless_job_role" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "s3_access" {
+resource "aws_iam_role_policy_attachment" "emr_policy_attachment" {
   role       = aws_iam_role.emr_serverless_job_role.name
-  policy_arn = data.aws_iam_policy_document.emr_serverless_policy_doc.json
+  policy_arn = aws_iam_policy.emr_serverless_iam_policy.arn
 }
