@@ -7,9 +7,8 @@ target/
 project/
 .DS_Store
 .venv
-venv3.9
-lambda_dist_pkg
 __pycache__
 .pytest_cache
 .terraform
 .terraform*
+test.py
