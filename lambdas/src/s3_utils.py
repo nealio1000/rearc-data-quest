@@ -1,13 +1,7 @@
-import requests
 import boto3
 import os
-import json
-from datetime import date
 import logging
 import hashlib
-from urllib.parse import urljoin, urlparse
-from bs4 import BeautifulSoup
-from concurrent.futures import ThreadPoolExecutor
 from botocore.exceptions import ClientError
 
 # Set up logging for detailed output

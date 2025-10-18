@@ -1,7 +1,7 @@
 import requests
 import logging
-from s3_utils import synchronize_with_s3
-from file_downloader import download_bls_data, download_population_data
+from src.s3_utils import synchronize_with_s3
+from src.file_downloader import download_bls_data, download_population_data
 
 # Set up logging for detailed output
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
