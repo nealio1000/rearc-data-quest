@@ -29,6 +29,20 @@ jobs:
         uses: sbt/setup-sbt@v1
       - name: Build and Test
         run: sbt +test
+  deploy-spark-job:
+    runs-on: ubuntu-latest
+    needs: spark-test
+    defaults:
+      run:
+        working-directory: ./rearc-spark
+    steps:
+      - name: Build with sbt
+        run: sbt clean assembly # Or your build command to create a fat JAR
+      - name: Upload Spark Job JAR to S3
+        uses: actions/upload-artifact@v3
+        with:
+          name: spark-job-jar
+          path: target/scala-2.12/your-spark-job-assembly-*.jar # Adjust path
   lambdas-test:
     runs-on: ubuntu-latest
     defaults:
@@ -50,6 +64,7 @@ jobs:
   terraform-deploy:
     name: "Terraform Deploy"
     runs-on: ubuntu-latest
+    needs: [deploy-spark-job, lambdas-test]
     permissions:
       # so GitHub can check out this repo using the default github.token
       contents: read
