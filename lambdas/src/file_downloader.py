@@ -63,7 +63,6 @@ def download_bls_data(directory_url: str, local_folder: str) -> int:
     with ThreadPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(download_single_file, url, local_folder) for url in file_links]
         
-        # Optional: Print results as downloads complete
         for future in futures:
             future.result()
             
@@ -111,7 +110,7 @@ def download_population_data(url: str, local_folder: str, params: dict) -> int:
     os.makedirs(local_folder, exist_ok=True)
     try:
         download_single_file(file_url=url,local_dir=local_folder, params=params, override_filename='population.json')
-        print(f"--- Download complete! File saved in: {os.path.abspath(local_folder)} ---\n")
+        logging.info(f"--- Download complete! File saved in: {os.path.abspath(local_folder)} ---\n")
         return 1
     except Exception as e:
         return 0

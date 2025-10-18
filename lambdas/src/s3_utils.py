@@ -62,7 +62,7 @@ def get_s3_manifest(s3_client, bucket_name, prefix: str):
         paginator = s3_client.get_paginator('list_objects_v2')
         pages = paginator.paginate(Bucket=bucket_name, Prefix=prefix)
 
-        logging.info(f"Scanning S3 bucket: {bucket_name}")
+        logging.info(f"Scanning S3 bucket: {bucket_name}/{prefix}")
         
         for page in pages:
             if 'Contents' in page:
@@ -80,24 +80,27 @@ def get_s3_manifest(s3_client, bucket_name, prefix: str):
         
     return s3_manifest
 
-def synchronize_with_s3(source_dir, bucket_name, region=AWS_REGION):
+def synchronize_with_s3(source_dir, bucket_name, region='us-east-1'):
     """
     Compares local and S3 manifests and executes necessary uploads and deletions.
     """
     logging.info("Starting synchronization process...")
+
+    updated_or_added_count = 0
+    deleted_count = 0
     
     try:
         s3_client = boto3.client('s3', region_name=region)
     except Exception as e:
         logging.error(f"Could not initialize S3 client. Error: {e}")
-        return
+        return updated_or_added_count, deleted_count
 
     local_manifest = get_local_manifest(source_dir)
     s3_manifest = get_s3_manifest(s3_client, bucket_name, prefix=source_dir.replace('/tmp/', '') + '/')
     
     if not local_manifest and not s3_manifest:
         logging.warning("No files found locally or in S3. Exiting sync.")
-        return
+        return updated_or_added_count, deleted_count
 
     # 1. Determine files to upload (Additions or Modifications)
     files_to_upload = []
@@ -161,3 +164,6 @@ def synchronize_with_s3(source_dir, bucket_name, region=AWS_REGION):
         logging.info("No files detected for deletion in S3. Skipping deletions.")
 
     logging.info("Synchronization complete.")
+    updated_or_added_count = len(files_to_upload)
+    deleted_count = len(files_to_delete)
+    return updated_or_added_count, deleted_count

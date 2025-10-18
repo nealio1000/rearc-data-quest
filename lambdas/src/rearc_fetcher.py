@@ -39,30 +39,36 @@ def lambda_handler(event, context):
 
         # 3. Synchronize BLS Data with S3
         if bls_downloaded_count > 0:
-            synchronize_with_s3('/tmp/bls-data', s3_bucket_name)
-            
+            bls_files_updated_or_added, bls_files_deleted = synchronize_with_s3('/tmp/bls-data', s3_bucket_name)
         else:
-            logging.warning('0 Bls Files were downloaded, cannot perform synchroniziation with s3 bucket')
+            logging.error('0 BLS Files were downloaded, cannot perform synchroniziation with s3 bucket')
+            raise Exception('0 BLS Files were downloaded, cannot perform synchroniziation with s3 bucket')
 
         # 4. Synchronize Population Data with S3
         if population_data_count > 0:
-            synchronize_with_s3('/tmp/population', s3_bucket_name)
+            population_updated_or_added, population_deleted = synchronize_with_s3('/tmp/population', s3_bucket_name)
         else:
-            logging.warning('0 population data files download, cannot perform synchronization with s3 bucket')
+            logging.error('0 population data files download, cannot perform synchronization with s3 bucket')
+            raise Exception('0 population data files download, cannot perform synchronization with s3 bucket')
+        
+        files_updated_or_added = bls_files_updated_or_added + population_updated_or_added
+        files_removed = bls_files_deleted + population_deleted
+
+        logging.info(f'Fetcher Lambda completed successfully, updated/added {files_updated_or_added} files, removed {files_removed} files')
 
         return {
             'statusCode': 200,
-            'body': f'Fetcher Lambda completed successfully, updated x files, removed x files, added x files to bucket path'
+            'body': f'Fetcher Lambda completed successfully, updated/added {files_updated_or_added} files, removed {files_removed} files'
         }
 
     except requests.exceptions.RequestException as e:
-        print(f"Error fetching file from URL: {e}")
+        logging.error(f"Error fetching file from URL: {e}")
         return {
             'statusCode': 500,
             'body': f'Error fetching file: {str(e)}'
         }
     except Exception as e:
-        print(f"Error uploading file to S3: {e}")
+        logging.error(f"Error uploading file to S3: {e}")
         return {
             'statusCode': 500,
             'body': f'Error uploading to S3: {str(e)}'
