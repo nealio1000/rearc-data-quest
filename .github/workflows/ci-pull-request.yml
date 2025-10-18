@@ -48,6 +48,7 @@ jobs:
   terraform-plan:
     name: "Terraform Plan"
     runs-on: ubuntu-latest
+    needs: [spark-test, lambdas-test]
     permissions:
       # so GitHub can check out this repo using the default github.token
       contents: read
