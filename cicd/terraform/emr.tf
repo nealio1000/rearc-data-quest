@@ -2,7 +2,7 @@ resource "aws_emrserverless_application" "rearc_spark_app" {
     name    = "rearc-spark-app"
     release_label = "emr-7.10.0"
     type    = "spark"
-    architecture = "arm64"
+    architecture = "ARM64"
     initial_capacity {
     initial_capacity_type = "Driver"
     initial_capacity_config {
