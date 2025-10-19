@@ -10,7 +10,6 @@ object RearcSparkJob extends LazyLogging {
 
     def main(args: Array[String]): Unit = {
         val spark = SparkSession.builder
-            .master("local[*]")
             .appName("Rearc Spark Job")
             .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
             .getOrCreate()

@@ -113,7 +113,9 @@ data "aws_iam_policy_document" "emr_serverless_policy_doc" {
       "${aws_s3_bucket.raw_data_bucket.arn}/*",
       "${aws_s3_bucket.raw_data_bucket.arn}",
       "${aws_s3_bucket.processed_data_bucket.arn}/*",
-      "${aws_s3_bucket.processed_data_bucket.arn}"
+      "${aws_s3_bucket.processed_data_bucket.arn}",
+      "${aws_s3_bucket.artifacts_bucket.arn}/*",
+      "${aws_s3_bucket.artifacts_bucket.arn}"
     ]
     actions = [
       "s3:GetObject",
