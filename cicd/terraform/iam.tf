@@ -153,13 +153,6 @@ resource "aws_iam_role" "step_function_role" {
         Principal = {
           Service = "states.amazonaws.com"
         }
-      },
-      {
-        Effect: "Allow",
-        Action: "iam:PassRole",
-        Principal = {
-          Service = "emr-serverless.amazonaws.com"
-        }
       }
     ]
   })
@@ -196,6 +189,11 @@ resource "aws_iam_role_policy" "step_function_policy" {
           "events:DescribeRule"
         ]
         Resource = ["*"]
+      },
+      {
+        Effect: "Allow",
+        Action: "iam:PassRole",
+        Resource = aws_iam_role.emr_serverless_job_role.arn
       }
     ]
   })
