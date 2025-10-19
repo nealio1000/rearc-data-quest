@@ -21,7 +21,7 @@ def lambda_handler(event, context):
 
     # These could be configurable using the event json in a production setting to make the lambda more dynamic
     bls_dir_url = 'https://download.bls.gov/pub/time.series/pr/'
-    s3_bucket_name = 'rearc-quest-data-bucket'
+    s3_bucket_name = 'rearc-quest-raw-data-bucket'
     population_url = 'https://honolulu-api.datausa.io/tesseract/data.jsonrecords?cube=acs_yg_total_population_1&drilldowns=Year%2CNation&locale=en&measures=Population'
     population_params = {
         'cube':	'acs_yg_total_population_1',

@@ -10,7 +10,7 @@ locals {
         Resource = aws_lambda_function.fetcher_lambda.arn
         Next = "StartProcessDataEmrServerlessJob"
       }
-      StartProcessDataStartEmrServerlessJob = {
+      StartProcessDataEmrServerlessJob = {
         Type = "Task"
         Resource = "arn:aws:states:::emr-serverless:startJobRun.sync" # Use .sync for waiting
         Parameters = {
