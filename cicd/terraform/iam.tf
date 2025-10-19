@@ -141,11 +141,10 @@ data "aws_iam_policy_document" "emr_serverless_policy_doc" {
   statement {
     sid = "EMRJob"
     effect = "Allow"
-    resources = ["${aws_emrserverless_application.rearc_spark_app.arn}"]
+    resources = ["*"]
     actions = [
       "emr-serverless:StartJobRun",
       "emr-serverless:GetJobRun",
-      "emr-serverless:StopJobRun",
       "emr-serverless:ListJobRuns"
     ]
   }
@@ -201,11 +200,10 @@ resource "aws_iam_role_policy" "step_function_policy" {
         Action = [
           "emr-serverless:StartJobRun",
           "emr-serverless:GetJobRun",
-          "emr-serverless:StopJobRun",
-          "emr-serverless:ListJobRuns",
+          "emr-serverless:ListJobRuns"
         ]
         Effect   = "Allow"
-        Resource = aws_emrserverless_application.rearc_spark_app.arn
+        Resource = ["*"]
       },
       {
         Effect = "Allow"

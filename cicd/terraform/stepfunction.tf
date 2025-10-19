@@ -14,6 +14,7 @@ locals {
         Type = "Task"
         Resource = "arn:aws:states:::emr-serverless:startJobRun.sync" # Use .sync for waiting
         Parameters = {
+          Name = "process-fetched-data"
           ApplicationId = aws_emrserverless_application.rearc_spark_app.id
           ExecutionRoleArn = aws_iam_role.emr_serverless_job_role.arn
           JobDriver = {
