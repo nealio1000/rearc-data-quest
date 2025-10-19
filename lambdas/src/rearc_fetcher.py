@@ -23,19 +23,18 @@ def lambda_handler(event, context):
     bls_dir_url = 'https://download.bls.gov/pub/time.series/pr/'
     s3_bucket_name = 'rearc-quest-data-bucket'
     population_url = 'https://honolulu-api.datausa.io/tesseract/data.jsonrecords?cube=acs_yg_total_population_1&drilldowns=Year%2CNation&locale=en&measures=Population'
-    # population_params = {
-    #     'cube':	'acs_yg_total_population_1',
-    #     'drilldowns':	['Year','Nation'],
-    #     'locale':	'en',
-    #     'measures':	'Population'
-    # }
+    population_params = {
+        'cube':	'acs_yg_total_population_1',
+        'drilldowns':	'Year,Nation',
+        'measures':	'Population'
+    }
 
     try:
         # 1. Retrieve the BLS files
         bls_downloaded_count = download_bls_data(directory_url=bls_dir_url, local_folder='/tmp/bls-data')
 
         # 2. Retrieve the population data json file
-        population_data_count = download_population_data(url=population_url, local_folder = '/tmp/population', params={})
+        population_data_count = download_population_data(url=population_url, local_folder = '/tmp/population', params=population_params)
 
         # 3. Synchronize BLS Data with S3
         if bls_downloaded_count > 0:
