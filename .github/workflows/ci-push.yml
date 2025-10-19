@@ -42,7 +42,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
       - name: Upload JAR to S3
-        run: aws s3 cp target/scala-2.12/rearc-spark-assembly-0.0.1-SNAPSHOT.jar s3://rearc-quest-data-bucket/spark-jars/
+        run: aws s3 cp target/scala-2.12/rearc-spark-assembly-0.0.1-SNAPSHOT.jar s3://rearc-quest-artifacts/spark-jars/
   lambdas-test:
     runs-on: ubuntu-latest
     defaults:

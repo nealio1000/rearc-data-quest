@@ -26,5 +26,5 @@ variable "distribution_pkg_folder" {
 
 variable "data_bucket" {
   description = "Bucket name for rearc data"
-  default = "rearc-quest-data-bucket"
+  default = "rearc-quest-raw-data-bucket"
 }

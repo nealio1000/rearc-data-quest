@@ -1,50 +1,46 @@
+import json
 import boto3
 import logging
-
 
 # Configure logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+s3_client = boto3.client('s3')
+
 def lambda_handler(event, context):
     """
-    Retrieves a file from S3 and logs its content.
-
-    Args:
-        event (dict): The event data, typically from an S3 trigger,
-                      containing bucket and object information.
-        context (object): The Lambda runtime context object.
+    AWS Lambda handler function that processes SQS messages.
+    Each message is expected to contain details about an S3 object (bucket and key).
+    The function retrieves the S3 object and logs its content.
     """
-    s3_client = boto3.client('s3')
+    for record in event['Records']:
+        try:
+            # Parse the SQS message body
+            message_body = json.loads(record['body'])
+            
+            # Extract S3 bucket and key from the message.
+            # The structure of the SQS message body can vary depending on how it's sent.
+            # This example assumes the S3 event notification structure.
+            s3_info = message_body['Records'][0]['s3']
+            bucket_name = s3_info['bucket']['name']
+            object_key = s3_info['object']['key']
 
-    # Extract bucket name and object key from the event
-    # This assumes the Lambda is triggered by an S3 event
-    if 'Records' in event:
-        for record in event['Records']:
-            if 's3' in record:
-                bucket_name = record['s3']['bucket']['name']
-                object_key = record['s3']['object']['key']
+            logger.info(f"Processing S3 object: s3://{bucket_name}/{object_key}")
 
-                logger.info(f"Retrieving file '{object_key}' from bucket '{bucket_name}'")
+            # Retrieve the file from S3
+            response = s3_client.get_object(Bucket=bucket_name, Key=object_key)
+            file_content = response['Body'].read().decode('utf-8')
 
-                try:
-                    # Get the object from S3
-                    response = s3_client.get_object(Bucket=bucket_name, Key=object_key)
-                    file_content = response['Body'].read().decode('utf-8')
+            # Log the content of the file
+            logger.info(f"Content of s3://{bucket_name}/{object_key}:\n{file_content}")
 
-                    # Log the file content
-                    logger.info(f"File content for '{object_key}':\n{file_content}")
+        except Exception as e:
+            logger.error(f"Error processing SQS message: {e}")
+            # Optionally, re-raise the exception or handle it for DLQ processing
+            # raise e 
 
-                except Exception as e:
-                    logger.error(f"Error retrieving or processing file '{object_key}': {e}")
-                    raise # Re-raise the exception to indicate failure
-            else:
-                logger.warning("S3 event record not found in event.")
-    else:
-        # Handle cases where the Lambda is invoked manually or by other services
-        # You would need to define bucket_name and object_key differently
-        logger.info("Lambda invoked without S3 event. Manual or other trigger assumed.")
-        # Example for manual invocation:
-        # bucket_name = "your-s3-bucket-name"
-        # object_key = "your-file-key.txt"
-        # ... (rest of the S3 retrieval logic)
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Messages processed successfully!')
+    }

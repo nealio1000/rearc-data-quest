@@ -1,52 +1,31 @@
-# Define a standard SQS queue
-resource "aws_sqs_queue" "main_queue" {
-  name                       = "my-terraform-sqs-queue"
-  delay_seconds              = 0
-  max_message_size           = 262144 # 256KB
-  message_retention_seconds  = 345600 # 4 days
-  receive_wait_time_seconds  = 0
-  visibility_timeout_seconds = 30
-
-  # Configure the redrive policy to use the dead-letter queue
+resource "aws_sqs_queue" "proccesed_data_notification_queue" {
+  name                       = "processed_data-notification-queue"
+  message_retention_seconds  = 86400 # 1 day
   redrive_policy = jsonencode({
-    deadLetterTargetArn = aws_sqs_queue.dead_letter_queue.arn
-    maxReceiveCount     = 5 # Number of times a message can be received before moving to DLQ
+    deadLetterTargetArn = aws_sqs_queue.proccessed_data_notification_dlq.arn
+    maxReceiveCount     = 5
   })
-
-  tags = {
-    Environment = "Development"
-    Purpose     = "TerraformExample"
-  }
 }
 
-# Define the Dead-Letter Queue (DLQ)
-resource "aws_sqs_queue" "dead_letter_queue" {
-  name = "my-terraform-sqs-dead-letter-queue"
-
-  tags = {
-    Environment = "Development"
-    Purpose     = "DeadLetterQueue"
-  }
+resource "aws_sqs_queue" "proccessed_data_notification_dlq" {
+  name = "s3-file-notification-dlq"
 }
 
-# Output the ARN and URL of the main queue
-output "main_queue_arn" {
-  value       = aws_sqs_queue.main_queue.arn
-  description = "The ARN of the main SQS queue."
-}
+resource "aws_sqs_queue_policy" "processed_data_notification_queue_policy" {
+  queue_url = aws_sqs_queue.proccesed_data_notification_queue.id
 
-output "main_queue_url" {
-  value       = aws_sqs_queue.main_queue.id
-  description = "The URL of the main SQS queue."
-}
-
-# Output the ARN and URL of the dead-letter queue
-output "dead_letter_queue_arn" {
-  value       = aws_sqs_queue.dead_letter_queue.arn
-  description = "The ARN of the dead-letter SQS queue."
-}
-
-output "dead_letter_queue_url" {
-  value       = aws_sqs_queue.dead_letter_queue.id
-  description = "The URL of the dead-letter SQS queue."
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect    = "Allow",
+        Principal = { Service = "s3.amazonaws.com" },
+        Action    = "SQS:SendMessage",
+        Resource  = aws_sqs_queue.proccesed_data_notification_queue.arn,
+        Condition = {
+          ArnEquals = { "aws:SourceArn" = aws_s3_bucket.processed_data_bucket.arn }
+        }
+      }
+    ]
+  })
 }
