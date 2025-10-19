@@ -155,7 +155,7 @@ resource "aws_iam_role" "step_function_role" {
         }
       },
       {
-        Effect": "Allow",
+        Effect: "Allow",
         Action: "iam:PassRole",
         Principal = {
           Service = "emr-serverless.amazonaws.com"
