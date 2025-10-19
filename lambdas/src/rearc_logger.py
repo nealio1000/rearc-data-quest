@@ -20,8 +20,6 @@ def lambda_handler(event, context):
             message_body = json.loads(record['body'])
             
             # Extract S3 bucket and key from the message.
-            # The structure of the SQS message body can vary depending on how it's sent.
-            # This example assumes the S3 event notification structure.
             s3_info = message_body['Records'][0]['s3']
             bucket_name = s3_info['bucket']['name']
             object_key = s3_info['object']['key']
@@ -33,12 +31,11 @@ def lambda_handler(event, context):
             file_content = response['Body'].read().decode('utf-8')
 
             # Log the content of the file
-            logger.info(f"Content of s3://{bucket_name}/{object_key}:\n{file_content}")
+            logger.info(file_content)
 
         except Exception as e:
             logger.error(f"Error processing SQS message: {e}")
-            # Optionally, re-raise the exception or handle it for DLQ processing
-            # raise e 
+            raise e 
 
     return {
         'statusCode': 200,
