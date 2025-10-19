@@ -141,7 +141,7 @@ data "aws_iam_policy_document" "emr_serverless_policy_doc" {
   statement {
     sid = "EMRJob"
     effect = "Allow"
-    resource = aws_emrserverless_application.rearc_spark_app.arn
+    resources = ["${aws_emrserverless_application.rearc_spark_app.arn}"]
     actions = [
       "emr-serverless:StartJobRun",
       "emr-serverless:GetJobRun",
