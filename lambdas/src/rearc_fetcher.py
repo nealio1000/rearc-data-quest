@@ -1,7 +1,7 @@
 import requests
 import logging
-from src.s3_utils import synchronize_with_s3
-from src.file_downloader import download_bls_data, download_population_data
+from src.s3_utils import synchronize_with_s3 # to run locally you may need to remove src.
+from src.file_downloader import download_bls_data, download_population_data # to run locally you may need to remove src.
 
 # Set up logging for detailed output
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -22,11 +22,10 @@ def lambda_handler(event, context):
     # These could be configurable using the event json in a production setting to make the lambda more dynamic
     bls_dir_url = 'https://download.bls.gov/pub/time.series/pr/'
     s3_bucket_name = 'rearc-quest-data-bucket'
-    population_url = 'https://honolulu-api.datausa.io/tesseract/data.jsonrecords'
+    population_url = 'https://honolulu-api.datausa.io/tesseract/data.jsonrecords?cube=acs_yg_total_population_1&drilldowns=Year%2CNation&locale=en&measures=Population'
     population_params = {
         'cube':	'acs_yg_total_population_1',
-        'drilldowns':	['Year','Nation'],
-        'locale':	'en',
+        'drilldowns':	'Year,Nation',
         'measures':	'Population'
     }
 

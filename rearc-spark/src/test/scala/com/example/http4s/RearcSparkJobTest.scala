@@ -6,7 +6,7 @@ import org.scalatest.{BeforeAndAfterAll, Suite}
 
 
 
-trait SharedSparkSession extends BeforeAndAfterAll { this: Suite =>
+trait SparkTestFixture extends BeforeAndAfterAll { this: Suite =>
 
   @transient protected var spark: SparkSession = _
 
@@ -30,19 +30,9 @@ trait SharedSparkSession extends BeforeAndAfterAll { this: Suite =>
   }
 }
 
-class RearcSparkJobTest extends AnyFunSuiteLike with BeforeAndAfterAll with SharedSparkSession {
 
-  // add fixture for starting spark cluster
-
-  // call a function that reads and sanitizes the input data
-
-  // call a function that reads fails to sanitize the input data
-
-  // call a function that aggregates the bls data and verifies the result
-
-  // call a function that aggregates the bls data and verifies there is no result
-
-  // call a function that verifies the write
+// TODO Add Tests
+class RearcSparkJobTest extends AnyFunSuiteLike with BeforeAndAfterAll with SparkTestFixture {
 
   test("placeholder test") { ss: SparkSession =>
     import ss.implicits._
