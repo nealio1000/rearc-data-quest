@@ -167,9 +167,12 @@ resource "aws_iam_role_policy" "step_function_policy" {
       {
         Effect = "Allow"
         Action = "lambda:InvokeFunction"
-        Resource = "arn:aws:lambda:us-east-1:123456789012:function:my-lambda-function" # Replace with your Lambda ARN
+        Resource = "arn:aws:lambda:us-east-1:050498403144:function:rearc_fetcher"
       },
-      # Add other necessary permissions here
+      {
+        Effect = "Allow"
+        Action = "emr-serverless:*"
+      }
     ]
   })
 }

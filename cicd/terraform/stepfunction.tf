@@ -18,8 +18,8 @@ locals {
           ExecutionRoleArn = aws_iam_role.emr_serverless_job_role.arn
           JobDriver = {
             SparkSubmit = {
-              EntryPoint = "s3://your-bucket/your-job-script.py"
-              SparkSubmitParameters = "--conf spark.executor.instances=2 --conf spark.executor.memory=2G"
+              EntryPoint = "s3://rearc-quest-artifacts/spark-jars/rearc-spark-assembly-0.0.1-SNAPSHOT.jar",
+              SparkSubmitParameters = "--class com.neal.rearc_quest.RearcSparkJob --conf spark.executor.memory=4g" # Your Spark parameters
             }
           }
           ConfigurationOverrides = {

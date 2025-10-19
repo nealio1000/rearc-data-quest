@@ -64,8 +64,8 @@ resource "aws_lambda_function" "logger_lambda" {
   source_code_hash = data.archive_file.lambdas_zip.output_base64sha256
 }
 
-resource "aws_lambda_event_source_mapping" "proccesed_data_sqs_trigger" {
-  event_source_arn = aws_sqs_queue.proccesed_data_notification_queue.arn
+resource "aws_lambda_event_source_mapping" "processed_data_sqs_trigger" {
+  event_source_arn = aws_sqs_queue.processed_data_notification_queue.arn
   function_name    = aws_lambda_function.logger_lambda.arn
   batch_size       = 1 # Process one file at a time
   enabled          = true
