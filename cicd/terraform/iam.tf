@@ -68,6 +68,20 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
       "s3:ListBucket"
     ]
   }
+
+  statement {
+    sid = "S3Read"
+    effect = "Allow"
+    resources = [
+      "${aws_s3_bucket.processed_data_bucket.arn}/*",
+      "${aws_s3_bucket.processed_data_bucket.arn}" 
+    ]
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket"
+    ]
+  }
+
 }
 
 resource "aws_iam_policy" "lambda_iam_policy" {
@@ -121,6 +135,18 @@ data "aws_iam_policy_document" "emr_serverless_policy_doc" {
       "s3:GetObject",
       "s3:ListBucket",
       "s3:PutObject"
+    ]
+  }
+
+  statement {
+    sid = "EMRJob"
+    effect = "Allow"
+    resource = aws_emrserverless_application.rearc_spark_app.arn
+    actions = [
+      "emr-serverless:StartJobRun",
+      "emr-serverless:GetJobRun",
+      "emr-serverless:StopJobRun",
+      "emr-serverless:ListJobRuns"
     ]
   }
 }

@@ -85,20 +85,20 @@ object RearcSparkJob extends LazyLogging {
                 
             val processedDataBucket = "s3a://rearc-quest-processed-data-bucket/"
 
-            populationMeanAndStdDf.write
+            populationMeanAndStdDf.coalesce(1).write
                 .format("json")
                 .mode("overwrite")
-                .save(processedDataBucket + "population_mean_and_std.json")
+                .json(processedDataBucket + "population_mean_and_std")
 
-            bestYearsDf.write
+            bestYearsDf.coalesce(1).write
                 .format("json")
                 .mode("overwrite")
-                .save(processedDataBucket + "best_years.json")
+                .json(processedDataBucket + "best_years")
 
-            populationReportDf.write
+            populationReportDf.coalesce(1).write
                 .format("json")
-                .format("overwrite")
-                .save(processedDataBucket + "population_report.json")
+                .mode("overwrite")
+                .json(processedDataBucket + "population_report")
 
         } catch {
             case ex: Throwable => throw ex
