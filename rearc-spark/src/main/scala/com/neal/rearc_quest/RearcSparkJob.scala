@@ -12,12 +12,11 @@ object RearcSparkJob extends LazyLogging {
         val spark = SparkSession.builder
             .appName("Rearc Spark Job")
             .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+            .config("spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version", "2")
+            .config("spark.sql.caseSensitive", true)
             .getOrCreate()
 
         import spark.implicits._
-
-        spark.conf.set("spark.sql.caseSensitive", true)
-        spark.conf.set("mapreduce.fileoutputcommitter.algorithm.version", "2")
 
         val rawDataBucket = "rearc-quest-raw-data-bucket"
 
