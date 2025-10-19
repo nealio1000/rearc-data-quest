@@ -1,5 +1,5 @@
 resource "aws_sqs_queue" "processed_data_notification_queue" {
-  name                       = "processed_data-notification-queue"
+  name                       = "processed-data-notification-queue"
   message_retention_seconds  = 86400 # 1 day
   visibility_timeout_seconds = 500
   redrive_policy = jsonencode({

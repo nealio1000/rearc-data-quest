@@ -167,14 +167,60 @@ resource "aws_iam_role_policy" "step_function_policy" {
       {
         Effect = "Allow"
         Action = "lambda:InvokeFunction"
-        Resource = "arn:aws:lambda:us-east-1:050498403144:function:rearc_fetcher"
+        Resource = aws_lambda_function.fetcher_lambda.arn
+      },
+      {
+        Action = [
+          "emr-serverless:StartJobRun",
+          "emr-serverless:GetJobRun",
+          "emr-serverless:StopJobRun",
+          "emr-serverless:ListJobRuns",
+        ]
+        Effect   = "Allow"
+        Resource = aws_emrserverless_application.rearc_spark_app.arn
       },
       {
         Effect = "Allow"
-        Action = "emr-serverless:*"
+        Action = [
+          "events:PutRule",
+          "events:PutTargets",
+          "events:DescribeRule"
+        ]
+        Resource = aws_scheduler_schedule.daily_sfn_schedule.arn
       }
     ]
   })
 }
 
 ## END STEP FUNCTION IAM
+
+## EVENTBRIDGE IAM
+
+# IAM Role for EventBridge Scheduler
+resource "aws_iam_role" "eventbridge_scheduler_role" {
+  name = "eventbridge-scheduler-sfn-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "scheduler.amazonaws.com"
+      }
+    }]
+  })
+}
+
+# Policy to allow EventBridge Scheduler to start Step Functions execution
+resource "aws_iam_role_policy" "eventbridge_scheduler_sfn_policy" {
+  name = "eventbridge-scheduler-sfn-policy"
+  role = aws_iam_role.eventbridge_scheduler_role.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action   = "states:StartExecution"
+      Effect   = "Allow"
+      Resource = aws_sfn_state_machine.daily_fetch_data_state_machine.arn
+    }]
+  })
+}
