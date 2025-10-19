@@ -186,7 +186,7 @@ resource "aws_iam_role_policy" "step_function_policy" {
           "events:PutTargets",
           "events:DescribeRule"
         ]
-        Resource = aws_scheduler_schedule.daily_sfn_schedule.arn
+        Resource = ["*"]
       }
     ]
   })
