@@ -18,6 +18,8 @@ object RearcSparkJob extends LazyLogging {
 
         spark.conf.set("spark.sql.caseSensitive", true)
 
+        val rawDataBucket = "rearc-quest-raw-data-bucket"
+
         try {
             // read in bls file time series data
             val blsSchema = StructType(Array(
@@ -32,12 +34,12 @@ object RearcSparkJob extends LazyLogging {
                 .option("header", "true")
                 .option("delimiter", "\t")
                 .schema(blsSchema)
-                .csv("s3a://rearc-quest-data-bucket/bls-data/pr.data.0.Current")
+                .csv(f"s3a://$rawDataBucket/bls-data/pr.data.0.Current")
 
             // read in population data
             val populationDf = spark.read
                 .option("multiline", "true")
-                .json("s3a://rearc-quest-data-bucket/population/population.json")
+                .json(f"s3a://$rawDataBucket/population/population.json")
                 .withColumn("exploded_value", explode(col("data")))
                 .select(
                     col("exploded_value.Year").cast(IntegerType).as("year"),
@@ -81,22 +83,22 @@ object RearcSparkJob extends LazyLogging {
                     populationDf("population").as("Population")
                 )
                 
-            val baseS3Path = "s3a://rearc-processed_data/"
+            val processedDataBucket = "s3a://rearc-quest-processed-data-bucket/"
 
             populationMeanAndStdDf.write
                 .format("json")
                 .mode("overwrite")
-                .save(baseS3Path + "population_mean_and_std.json")
+                .save(processedDataBucket + "population_mean_and_std.json")
 
             bestYearsDf.write
                 .format("json")
                 .mode("overwrite")
-                .save(baseS3Path + "best_years.json")
+                .save(processedDataBucket + "best_years.json")
 
             populationReportDf.write
                 .format("json")
                 .format("overwrite")
-                .save(baseS3Path + "population_report.json")
+                .save(processedDataBucket + "population_report.json")
 
         } catch {
             case ex: Throwable => throw ex
