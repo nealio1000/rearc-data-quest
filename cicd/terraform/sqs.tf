@@ -23,7 +23,7 @@ resource "aws_sqs_queue_policy" "processed_data_notification_queue_policy" {
         Action    = "SQS:SendMessage",
         Resource  = aws_sqs_queue.proccesed_data_notification_queue.arn,
         Condition = {
-          ArnEquals = { "aws:SourceArn" = aws_s3_bucket.proccessed_data_bucket.arn }
+          ArnEquals = { "aws:SourceArn" = aws_s3_bucket.processed_data_bucket.arn }
         }
       }
     ]
