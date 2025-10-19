@@ -6,7 +6,7 @@ resource "aws_scheduler_schedule" "daily_sfn_schedule" {
     mode = "OFF"
   }
 
-  schedule_expression = "cron(0 8 * * *)" # Runs daily at 08:00
+  schedule_expression = "cron(0 8 * * ? *)" # Runs daily at 08:00
 
   target {
     arn      = aws_sfn_state_machine.daily_fetch_data_state_machine.arn
