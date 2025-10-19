@@ -24,10 +24,10 @@ def download_bls_data(directory_url: str, local_folder: str) -> int:
     """
     logging.info(f"Starting download from: {directory_url}")
 
-    # 1. Create the local directory if it doesn't exist
+    # Create the local directory if it doesn't exist
     os.makedirs(local_folder, exist_ok=True)
 
-    # 2. Fetch and parse the directory HTML
+    # Fetch and parse the directory HTML
     try:
         response = requests.get(directory_url, timeout=30, headers=headers)
         response.raise_for_status()  # Raise an exception for 4xx or 5xx status codes
@@ -39,7 +39,7 @@ def download_bls_data(directory_url: str, local_folder: str) -> int:
     file_links = []
     base_netloc = urlparse(directory_url).netloc
     
-    # 3. Extract file links
+    # Extract file links
     for link in soup.find_all('a'):
         href = link.get('href')
         
@@ -59,7 +59,7 @@ def download_bls_data(directory_url: str, local_folder: str) -> int:
 
     logging.info(f"Found {len(file_links)} files. Starting download...")
     
-    # 4. Download all files using multithreading for efficiency
+    # Download all files using multithreading for efficiency
     with ThreadPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(download_single_file, url, local_folder) for url in file_links]
         
@@ -70,7 +70,15 @@ def download_bls_data(directory_url: str, local_folder: str) -> int:
     return len(file_links)
 
 def download_single_file(file_url, local_dir, params: dict = {}, override_filename: str | None = None):
-    """Internal function to download a single file with streaming."""
+    """
+    Internal function to download a single file with streaming.
+
+    :param file_url The URL of the file to download
+    :param local_dir The path to the directory to store the file in
+    :params params Any query parameters used in the fetch request for the file
+    :params override_filename Optional value for if the caller wants to specify a name for the file
+    :return The path to the file on the local filesystem
+    """
     try:
         # Get filename from the URL path
         if not override_filename:
@@ -106,8 +114,9 @@ def download_population_data(url: str, local_folder: str, params: dict) -> int:
     :param local_folder: The local directory to save the files to.
     :return the count of population files downloaded (should be 1)
     """
-    # 1. Create the local directory if it doesn't exist
+    # Create the local directory if it doesn't exist
     os.makedirs(local_folder, exist_ok=True)
+    
     try:
         download_single_file(file_url=url,local_dir=local_folder, params=params, override_filename='population.json')
         logging.info(f"--- Download complete! File saved in: {os.path.abspath(local_folder)} ---\n")
