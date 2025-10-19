@@ -81,8 +81,23 @@ object RearcSparkJob extends LazyLogging {
                     filteredBlsDf("value"), 
                     populationDf("population").as("Population")
                 )
+                
+            val baseS3Path = "s3a://rearc-processed_data/"
 
-            // write out result to s3
+            populationMeanAndStdDf.write
+                .format("json")
+                .mode("overwrite")
+                .save(baseS3Path + "population_mean_and_std.json")
+
+            bestYearsDf.write
+                .format("json")
+                .mode("overwrite")
+                .save(baseS3Path + "best_years.json")
+
+            populationReportDf.write
+                .format("json")
+                .format("overwrite")
+                .save(baseS3Path + "population_report.json")
 
         } catch {
             case ex: Throwable => throw ex
