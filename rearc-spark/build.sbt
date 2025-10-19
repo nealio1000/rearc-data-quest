@@ -6,8 +6,8 @@ val HadoopAWS = "3.3.4"
 
 val deps = Seq(
     "com.typesafe.scala-logging"    %% "scala-logging"              % ScalaLogging,
-    "org.apache.spark"              %% "spark-core"                 % SparkVersion              % "provided",
-    "org.apache.spark"              %% "spark-sql"                  % SparkVersion              % "provided",
+    "org.apache.spark"              %% "spark-core"                 % SparkVersion              % "provided",   // for local testing remove "provided"  
+    "org.apache.spark"              %% "spark-sql"                  % SparkVersion              % "provided",   // for local testing remove "provided"  
     "org.apache.hadoop"             % "hadoop-aws"                  % HadoopAWS,
     "org.scalatest"                 %% "scalatest"                  % ScalaTest                 % Test
 )
