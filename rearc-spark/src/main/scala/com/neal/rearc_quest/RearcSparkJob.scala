@@ -9,6 +9,8 @@ import org.apache.spark.Partitioner
 object RearcSparkJob extends LazyLogging {
 
     def main(args: Array[String]): Unit = {
+
+        // Set up Spark Session
         val spark = SparkSession.builder
             .appName("Rearc Spark Job")
             .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
@@ -18,10 +20,11 @@ object RearcSparkJob extends LazyLogging {
 
         import spark.implicits._
 
+        // This could be configurable in a future enhancement
         val rawDataBucket = "rearc-quest-raw-data-bucket"
 
         try {
-            // read in bls file time series data
+            // Expected schema for BLS Data
             val blsSchema = StructType(Array(
                 StructField("series_id", StringType, nullable = false),
                 StructField("year", IntegerType, nullable = false),
@@ -30,13 +33,14 @@ object RearcSparkJob extends LazyLogging {
                 StructField("footnote_codes", StringType, nullable = true),
             ))
 
+            // Read in BLS Data from S3
             val blsDf = spark.read
                 .option("header", "true")
                 .option("delimiter", "\t")
                 .schema(blsSchema)
                 .csv(f"s3a://$rawDataBucket/bls-data/pr.data.0.Current")
 
-            // read in population data
+            // Read in Population Data from S3
             val populationDf = spark.read
                 .option("multiline", "true")
                 .json(f"s3a://$rawDataBucket/population/population.json")
@@ -46,12 +50,12 @@ object RearcSparkJob extends LazyLogging {
                     col("exploded_value.Population").cast(LongType).as("population")
                 )
 
-            // DataFrame #1
+            // DataFrame for Section 3.1
             val populationMeanAndStdDf = populationDf
                 .filter(col("year") >= 2013 && col("year") <= 2018)
                 .select(avg("population").as("Population Mean"), stddev("population").as("Population Standard Deviation"))
 
-            // DataFrame #2
+            // DataFrame for Section 3.2
             val bestYearsDf = blsDf
                 .groupBy(col("series_id"), col("year"))
                 .agg(sum("value").as("total_value"))
@@ -71,7 +75,7 @@ object RearcSparkJob extends LazyLogging {
                 .select("series_id", "year", "period", "value")
 
 
-            // DataFrame #3
+            // DataFrame for Section 3.3
             val populationReportDf = filteredBlsDf
                 .join(populationDf, filteredBlsDf("year") === populationDf("year"), "left")
                 .filter(populationDf("population").isNotNull)
@@ -85,6 +89,8 @@ object RearcSparkJob extends LazyLogging {
                 
             val processedDataBucket = "s3a://rearc-quest-processed-data-bucket/"
 
+            // Coalesce into one file for now as our datasets are small and this is meant to be a simple project.
+            // Then write dataframes to processed data bucket as JSON.
             populationMeanAndStdDf.coalesce(1).write
                 .format("json")
                 .mode("overwrite")

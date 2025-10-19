@@ -96,7 +96,7 @@ def synchronize_with_s3(source_dir, bucket_name, region='us-east-1'):
         logging.warning("No files found locally or in S3. Exiting sync.")
         return updated_or_added_count, deleted_count
 
-    # 1. Determine files to upload (Additions or Modifications)
+    # Determine files to upload (Additions or Modifications)
     files_to_upload = []
     for s3_key, local_md5 in local_manifest.items():
         # A file is new if its key is not in the S3 manifest
@@ -107,7 +107,7 @@ def synchronize_with_s3(source_dir, bucket_name, region='us-east-1'):
             logging.debug(f"{status}: {s3_key}")
         # Else: MD5 matches ETag, file is in sync, skip (efficiency achieved)
 
-    # 2. Determine objects to delete (Local Deletions)
+    # Determine objects to delete (Local Deletions)
     files_to_delete = []
     for s3_key in s3_manifest.keys():
         # An object needs deletion if its key is in S3 but not in the local manifest
@@ -116,9 +116,7 @@ def synchronize_with_s3(source_dir, bucket_name, region='us-east-1'):
             logging.debug(f"DELETED: {s3_key}")
 
 
-    # --- EXECUTE ACTIONS ---
-
-    # A. Execute Uploads/Updates
+    # Perform Uploads/Updates
     if files_to_upload:
         logging.info(f"--- UPLOADING/UPDATING {len(files_to_upload)} files ---")
         for s3_key in files_to_upload:
@@ -136,7 +134,7 @@ def synchronize_with_s3(source_dir, bucket_name, region='us-east-1'):
     else:
         logging.info("No local files detected as new or modified. Skipping uploads.")
         
-    # B. Execute Deletions
+    # Perform Deletions
     if files_to_delete:
         logging.info(f"--- DELETING {len(files_to_delete)} objects ---")
         

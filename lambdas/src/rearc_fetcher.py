@@ -6,9 +6,6 @@ from file_downloader import download_bls_data, download_population_data # to run
 # Set up logging for detailed output
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def sanitize_data() -> str:
-    return 'sanitized'
-
 def lambda_handler(event, context):
     """
     Retrieves a file from a specified URL and uploads it to an S3 bucket.
@@ -30,20 +27,20 @@ def lambda_handler(event, context):
     }
 
     try:
-        # 1. Retrieve the BLS files
+        # Retrieve the BLS files
         bls_downloaded_count = download_bls_data(directory_url=bls_dir_url, local_folder='/tmp/bls-data')
 
-        # 2. Retrieve the population data json file
+        # Retrieve the population data json file
         population_data_count = download_population_data(url=population_url, local_folder = '/tmp/population', params=population_params)
 
-        # 3. Synchronize BLS Data with S3
+        # Synchronize BLS Data with S3
         if bls_downloaded_count > 0:
             bls_files_updated_or_added, bls_files_deleted = synchronize_with_s3('/tmp/bls-data', s3_bucket_name)
         else:
             logging.error('0 BLS Files were downloaded, cannot perform synchroniziation with s3 bucket')
             raise Exception('0 BLS Files were downloaded, cannot perform synchroniziation with s3 bucket')
 
-        # 4. Synchronize Population Data with S3
+        # Synchronize Population Data with S3
         if population_data_count > 0:
             population_updated_or_added, population_deleted = synchronize_with_s3('/tmp/population', s3_bucket_name)
         else:
