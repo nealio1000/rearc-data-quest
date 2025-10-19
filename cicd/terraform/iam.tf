@@ -154,6 +154,11 @@ resource "aws_iam_role" "step_function_role" {
           Service = "states.amazonaws.com"
         }
       },
+      {
+          "Effect": "Allow",
+          "Action": "iam:PassRole",
+          "Resource": aws_iam_role.emr_serverless_job_role.arn
+      }
     ]
   })
 }
