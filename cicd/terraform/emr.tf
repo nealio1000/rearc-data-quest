@@ -10,7 +10,7 @@ resource "aws_emrserverless_application" "rearc_spark_app" {
             worker_count = 1
             worker_configuration {
                 cpu    = "2 vCPU"
-                memory = "2 GB"
+                memory = "4 GB"
             }
         }
     }
@@ -20,8 +20,8 @@ resource "aws_emrserverless_application" "rearc_spark_app" {
         initial_capacity_config {
             worker_count = 2
             worker_configuration {
-                cpu    = "4 vCPU"
-                memory = "2 GB"
+                cpu    = "2 vCPU"
+                memory = "4 GB"
             }
         }
     }
