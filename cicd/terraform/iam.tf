@@ -60,8 +60,8 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
     sid = "S3Write"
     effect = "Allow"
     resources = [
-      "${aws_s3_bucket.rearc_data_bucket.arn}/*",
-      "${aws_s3_bucket.rearc_data_bucket.arn}" 
+      "${aws_s3_bucket.raw_data_bucket.arn}/*",
+      "${aws_s3_bucket.raw_data_bucket.arn}" 
     ]
     actions = [
       "s3:PutObject",
@@ -75,9 +75,14 @@ resource "aws_iam_policy" "lambda_iam_policy" {
   policy = data.aws_iam_policy_document.lambda_policy_doc.json
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_sqs_policy" {
+  role       = aws_iam_role.lambda_exec_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole"
+}
+
 resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
-  policy_arn = aws_iam_policy.lambda_iam_policy.arn
   role = aws_iam_role.lambda_exec_role.name
+  policy_arn = aws_iam_policy.lambda_iam_policy.arn
 }
 
 ### END LAMBDA IAM ###
@@ -105,8 +110,10 @@ data "aws_iam_policy_document" "emr_serverless_policy_doc" {
     sid = "S3ReadWrite"
     effect = "Allow"
     resources = [
-      "${aws_s3_bucket.rearc_data_bucket.arn}/*",
-      "${aws_s3_bucket.rearc_data_bucket.arn}" 
+      "${aws_s3_bucket.raw_data_bucket.arn}/*",
+      "${aws_s3_bucket.raw_data_bucket.arn}",
+      "${aws_s3_bucket.processed_data_bucket.arn}/*",
+      "${aws_s3_bucket.processed_data_bucket.arn}"
     ]
     actions = [
       "s3:GetObject",
@@ -127,3 +134,44 @@ resource "aws_iam_role_policy_attachment" "emr_policy_attachment" {
 }
 
 ### END EMR IAM ###
+
+
+### STEP FUNCTION IAM
+
+# IAM Role for the Step Function
+resource "aws_iam_role" "step_function_role" {
+  name = "rearc-quest-step-function-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "states.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
+# IAM Policy for the Step Function (e.g., to invoke a Lambda)
+resource "aws_iam_role_policy" "step_function_policy" {
+  name = "my-step-function-policy"
+  role = aws_iam_role.step_function_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = "lambda:InvokeFunction"
+        Resource = "arn:aws:lambda:us-east-1:123456789012:function:my-lambda-function" # Replace with your Lambda ARN
+      },
+      # Add other necessary permissions here
+    ]
+  })
+}
+
+## END STEP FUNCTION IAM
