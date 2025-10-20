@@ -28,7 +28,7 @@ This project uses automated testing ran via GitHub Actions that gates deploys an
 *NOTE: Scala and Spark must be preinstalled*
 
 ```bash
-cd react-spark/
+cd rearc-spark/
 sbt test
 ```
 
