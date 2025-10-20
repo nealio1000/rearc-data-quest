@@ -1,7 +1,7 @@
 # Rearc Data Quest
 
 ## Overview
-Here lies the implementation for the Rearc Data Quest Project. The instructions were simple, to fetch two different datasets on a daily basis (Extract), synchronize the datasets with data in S3, perform some tranformations on the data (Transform), and write three datasets to a results S3 Bucket. The result datasets are processed on an SQS Queue and their contents are then logged out.
+Here lies the implementation for the Rearc Data Quest Project. The instructions were simple, to fetch two different datasets on a daily basis and synchronize the datasets with data in S3 (Extract), perform some tranformations on the data to create the three requested datasets (Transform), and write the three datasets to a results S3 Bucket (Load). The result datasets are processed on an SQS Queue and their contents are then logged out.
 
 ## Goals
 The goal of this project are to showcase my skills in data engineering by implementing a full end-to-end data pipeline, deployed in the cloud. 
