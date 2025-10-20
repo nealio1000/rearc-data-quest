@@ -26,11 +26,19 @@ This project uses automated testing ran via GitHub Actions that gates deploys an
 
 #### Testing Scala Spark Job
 *NOTE: Scala and Spark must be preinstalled*
-Tests are ran by starting in the `rearc-spark` directory and running `sbt test`
+
+```bash
+cd react-spark/
+sbt test
+```
 
 #### Testing Python Lambdas
-*NOTE: Python 3.13 must be installed, as well as any dependencies mention in requirements.txt*
-Start in the `lambdas` folder and run `pytest`
+*NOTE: Python 3.13 must be installed, as well as any dependencies from requirements.txt*
+
+```bash
+cd lambdas/
+pytest
+```
 
 ## Future Enhancements 
 While I know this is just a project to show off my skills, I would like to note that due to constraints on time there are missing features that I believe would be necessary for a true Production Grade project. The first and probably most important to me is the lack of test coverage. The code in this project could be easily broken down into smaller functions which would allow for testing each part in a logical way, achieving near 100% test coverage. I would then use this test coverage score to gate merging of pull requests on a condition that they satisfy a certain test coverage percentage. The next feature would be more configurability overall. Some examples being, the Lambdas currently do not use their event variables but they could be altered to allow the ability to pass different search filters to the Fetcher Lambda or change the delivery method of the the Logger Lambda uses to display its results. 
