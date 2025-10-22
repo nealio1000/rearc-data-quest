@@ -6,6 +6,28 @@ import org.apache.spark.sql.types._
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.Partitioner
 
+case class BLSData(
+    series_id: String,
+    year: Int,
+    period: String,
+    value: Double,
+    footnote_codes: String
+)
+
+case class AnnotationsData(
+    dataset_link: String
+)
+
+case class PageData(
+    limit: Int
+)
+
+case class PopulationData(
+    annotations: AnnotationsData,
+    page: PageData,
+    columns: List[String]
+)
+
 object RearcSparkJob extends LazyLogging {
 
     def main(args: Array[String]): Unit = {
@@ -39,6 +61,7 @@ object RearcSparkJob extends LazyLogging {
                 .option("delimiter", "\t")
                 .schema(blsSchema)
                 .csv(f"s3a://$rawDataBucket/bls-data/pr.data.0.Current")
+                // .as[BLSData]
 
             // Read in Population Data from S3
             val populationDf = spark.read
@@ -59,7 +82,7 @@ object RearcSparkJob extends LazyLogging {
             val bestYearsDf = blsDf
                 .groupBy(col("series_id"), col("year"))
                 .agg(sum("value").as("total_value"))
-                .orderBy(col("series_id"), col("year"))
+                // .orderBy(col("series_id"), col("year"))
                 .groupBy(col("series_id"))
                 .agg(max(struct(col("total_value"), col("year"))).as("year_value"))
                 .select(col("series_id"), col("year_value.year").as("year"), col("year_value.total_value").as("value"))
@@ -77,8 +100,7 @@ object RearcSparkJob extends LazyLogging {
 
             // DataFrame for Section 3.3
             val populationReportDf = filteredBlsDf
-                .join(populationDf, filteredBlsDf("year") === populationDf("year"), "left")
-                .filter(populationDf("population").isNotNull)
+                .join(populationDf, filteredBlsDf("year") === populationDf("year"), "inner")
                 .select(
                     filteredBlsDf("series_id"), 
                     filteredBlsDf("year"), 

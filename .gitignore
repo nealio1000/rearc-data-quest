@@ -13,3 +13,4 @@ __pycache__
 .terraform
 .terraform*
 test.py
+*.code-workspace
